@@ -203,7 +203,7 @@ class S3Uploader(object):
 
     """
     def __init__(self, directory, prefix, bucket, include=None, exclude=None,
-            concurrency=1, output=None):
+            concurrency=1, noreplace=False, output=None):
         self.directory = directory
         self.prefix = prefix
         self.bucket = bucket
@@ -211,6 +211,7 @@ class S3Uploader(object):
         self.exclude = exclude
         self.concurrency = concurrency
         self.output = output
+        self.noreplace = noreplace
         self.total = 0
         self.count = 0
         self.errors = 0
@@ -307,6 +308,12 @@ class S3Uploader(object):
                         continue
                 filenames.append(filename)
                 self.total += 1
+
+        if self.noreplace:
+            s3_keys = [key.key for key in self.bucket.get_new().list()]
+            stripped_filenames = [filename.replace('{}/'.format(self.directory), '') for filename in filenames]
+            replaceable_filenames = list(set(stripped_filenames).difference(set(s3_keys)))
+            filenames = ['{}/{}'.format(self.directory, filename) for filename in replaceable_filenames]
 
         if split:
             groups = [list() for i in xrange(self.concurrency)]

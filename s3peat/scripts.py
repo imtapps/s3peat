@@ -41,6 +41,9 @@ class Main(Command):
         self.opt('--dry-run', '-d', action='store_true',
                 help="print files matched and exit, do not upload")
 
+        self.opt('--noreplace', '-nr', action='store_true',
+                        help="Do not replace files that exist during upload")
+
         self.opt('--verbose', '-v', action='count', default=0,
                 help="increase verbosity (-vvv means more verbose) ")
 
@@ -84,6 +87,7 @@ class Main(Command):
                 include=a.include,
                 exclude=a.exclude,
                 concurrency=a.concurrency,
+                noreplace=a.noreplace,
                 output=output)
 
         # Start the upload
